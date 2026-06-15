@@ -2,18 +2,18 @@
 #include <chrono>
 using namespace std;
 
-void gerakanbola(int x, int y) {                 //1. y : nomor baris         2. H = kek pindahin kursor ke sini
+void tempatkursor(int x, int y) {                //1. y : nomor baris         2. H = kek pindahin kursor ke sini
     cout << "\033[" << y << ";" << x << "H";    //3. x : nomor kolom          4. ; = pemisah antara baris dan kolom
 }//nanti jadi \033[y;xH ,jadi kek perintah pindahin kursor ke baris y kolom x
 
 void ketapel() {
-    gerakanbola(1, 6);  cout << "|   |";
-    gerakanbola(1, 7);  cout << "|";
-    gerakanbola(5, 7);  cout << "|";
-    gerakanbola(1, 8);  cout << "|||||";
-    gerakanbola(1, 9);  cout << " |||";
-    gerakanbola(1, 10); cout << " |||";
-    gerakanbola(1, 11); cout << " |||";
+    tempatkursor(1, 6);  cout << "|   |";
+    tempatkursor(1, 7);  cout << "|";
+    tempatkursor(5, 7);  cout << "|";
+    tempatkursor(1, 8);  cout << "|||||";
+    tempatkursor(1, 9);  cout << " |||";
+    tempatkursor(1, 10); cout << " |||";
+    tempatkursor(1, 11); cout << " |||";
 }
 
 void hapus() {
@@ -44,13 +44,15 @@ int main(){
     hidecursor();
     hapus();
     ketapel();
-    gerakanbola(3,7);cout<<"O";
+    tempatkursor(3,7);cout<<"O";
+    tempatkursor(1,12);cout<<"pencet enter";
     cin.get();
+    
     
     for (int x = 3; x <= WIDTH; x++) {
         hapus();
         ketapel();
-        gerakanbola(x, Y);
+        tempatkursor(x, Y);
         cout << "O";
 
         cout.flush(); //buat animasinya ga patah patah
