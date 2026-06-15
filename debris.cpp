@@ -4,3 +4,4 @@ struct Debris {
     int hp;
     bool isExist;
 };
+//apa cok ga ngerti
