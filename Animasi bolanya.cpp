@@ -6,6 +6,16 @@ void gerakanbola(int x, int y) {                 //1. y : nomor baris         2.
     cout << "\033[" << y << ";" << x << "H";    //3. x : nomor kolom          4. ; = pemisah antara baris dan kolom
 }//nanti jadi \033[y;xH ,jadi kek perintah pindahin kursor ke baris y kolom x
 
+void ketapel() {
+    gerakanbola(1, 6);  cout << "|   |";
+    gerakanbola(1, 7);  cout << "|";
+    gerakanbola(5, 7);  cout << "|";
+    gerakanbola(1, 8);  cout << "|||||";
+    gerakanbola(1, 9);  cout << " |||";
+    gerakanbola(1, 10); cout << " |||";
+    gerakanbola(1, 11); cout << " |||";
+}
+
 void hapus() {
     cout << "\033[2J";
 }//buat hapus layar
@@ -27,17 +37,19 @@ void sleep_ms(int ms) {
 
 int main(){
     const int WIDTH = 70;
-    const int Y = 10;
+    const int Y = 7;
 
     int ulang=0;
 
     hidecursor();
     hapus();
-
-   
-    for (int x = 1; x <= WIDTH; x++) {
+    ketapel();
+    gerakanbola(3,7);cout<<"O";
+    cin.get();
+    
+    for (int x = 3; x <= WIDTH; x++) {
         hapus();
-
+        ketapel();
         gerakanbola(x, Y);
         cout << "O";
 
@@ -48,7 +60,7 @@ int main(){
     
     showcursor();
 
-    cout << "\nSelesai!\n";
+    cout << "\n\n\n\nSelesai!\n";
 
     system("pause");
     return 0;
