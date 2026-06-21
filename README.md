@@ -1,154 +1,116 @@
-# Project Kelompok Alpro 2026
+# Apex Projectile - Terminal Based Physics Arcade Game
 
-Repository ini digunakan untuk pengerjaan project kelompok praktikum Algoritma dan Pemrograman.
+Apex Projectile merupakan permainan arcade berbasis terminal (CLI / Command Line Interface) yang mengimplementasikan simulasi gerak parabola (Projectile Motion) dalam lingkungan permainan interaktif. Pemain mengendalikan sebuah ketapel untuk meluncurkan proyektil dengan mengatur sudut dan kekuatan tembakan guna menghancurkan target serta melewati berbagai rintangan yang dihasilkan secara acak pada setiap permainan.
 
-## Cara Bergabung
+Proyek ini dikembangkan menggunakan bahasa C++ dengan pendekatan modular sehingga setiap komponen utama permainan dipisahkan ke dalam berkas terpisah untuk memudahkan pengembangan kolaboratif menggunakan GitHub.
 
-### 1. Fork Repository
+## Fitur Utama Permainan
 
-Klik tombol **Fork** pada repository ini untuk membuat salinan repository ke akun GitHub masing-masing.
+1. **Sistem Gerak Parabola (Projectile Physics)**
 
-### 2. Clone Repository Hasil Fork
+   * Simulasi lintasan proyektil menggunakan persamaan gerak parabola.
+   * Pemain dapat menentukan sudut peluncuran (0° - 90°).
+   * Pemain dapat menentukan kekuatan tembakan secara manual.
+   * Pergerakan proyektil divisualisasikan secara real-time pada terminal.
 
-```bash
-git clone git@github.com:<username_kalian>/<nama_repo>.git
-cd nama_project
-```
+2. **Sistem Target dan Objektif Permainan**
 
-Pastikan Git sudah terinstall:
+   * Target ditempatkan pada posisi acak setiap permainan.
+   * Pemain memiliki jumlah kesempatan tembak yang terbatas.
+   * Permainan dinyatakan menang apabila target berhasil dihancurkan.
+   * Sistem Game Over ketika seluruh kesempatan telah habis.
 
-```bash
-git --version
-```
+3. **Obstacle & Shield Generation**
 
----
+   * Rintangan (Obstacle) dihasilkan secara acak pada setiap permainan.
+   * Menara target dapat terbentuk secara prosedural dengan jumlah blok berbeda.
+   * Shield atau penghalang tambahan dihasilkan secara acak untuk meningkatkan tingkat kesulitan.
+   * Sistem validasi posisi untuk mencegah konflik koordinat antar objek.
 
-## Membuat Branch
+4. **Physics Interaction System**
 
-Setiap anggota wajib bekerja pada branch masing-masing, dengan cara membuat branch per issue, issue disini dapat berupa fitur yang ingin dibuat.
+   * Tumbukan proyektil dengan obstacle menghasilkan efek fisika sederhana.
+   * Obstacle dapat terdorong dan jatuh akibat benturan.
+   * Target dapat ikut jatuh apabila struktur penyangga runtuh.
+   * Simulasi gravitasi diterapkan pada seluruh objek bergerak.
 
-Format:
+5. **Debris & Destruction Effect**
 
-```text
-nama-fitur
-```
+   * Obstacle yang hancur menghasilkan partikel debris.
+   * Debris memiliki kecepatan dan arah gerak acak.
+   * Efek pantulan sederhana diterapkan ketika debris menyentuh tanah.
+   * Debris akan menghilang secara otomatis ketika energi geraknya habis.
 
-Contoh:
+6. **Rendering Terminal Real-Time**
 
-```bash
-git checkout -b debris-system
-git checkout -b collison-detection
-```
+   * Seluruh objek permainan divisualisasikan menggunakan karakter ASCII.
+   * Sistem buffer layar digunakan untuk mengurangi flickering.
+   * Frame diperbarui secara berkala menggunakan mekanisme refresh terminal.
+   * Visualisasi target, proyektil, obstacle, debris, dan area permainan dilakukan secara real-time.
 
----
+## Struktur Arsitektur Berkas
 
-## Sebelum Mulai Coding
+Proyek menggunakan pendekatan modular agar setiap anggota kelompok dapat mengembangkan fitur secara paralel melalui GitHub.
 
-Tambahkan repository utama sebagai upstream:
+* `main.cpp` : Entry point program, menu utama, navigasi permainan, dan pengatur alur utama aplikasi.
+* `gameplay.cpp` : Sistem gameplay utama, simulasi tembakan, fisika proyektil, target, dan logika kemenangan.
+* `obstacle.cpp` : Sistem pembuatan obstacle, shield, menara target, serta manajemen koordinat objek.
+* `vector.cpp` : Struktur data Vector2D yang digunakan untuk menyimpan posisi objek dalam permainan.
+* `render.cpp` : Sistem rendering terminal, buffer layar, visualisasi objek ASCII, dan pengelolaan frame.
+* `collision.cpp` : Sistem deteksi tabrakan antara proyektil, obstacle, target, dan debris.
+* `particle.cpp` : Sistem partikel debris dan efek kehancuran objek.
+* `menu.cpp` : Antarmuka menu utama, petunjuk permainan, dan informasi pengembang.
 
-```bash
-git remote add upstream https://github.com/0xleonf/<nama_repo>.git
-```
+## Konsep Pemrograman yang Digunakan
 
-Ambil perubahan terbaru:
+Beberapa konsep yang diterapkan dalam proyek ini antara lain:
 
-```bash
-git fetch upstream
-git checkout main
-git merge upstream/main
-```
+* Array dan Array Multidimensi
+* Struct dan Pointer
+* Dynamic Memory Allocation (`new` dan `delete`)
+* Modular Programming
+* Random Number Generation
+* Physics Simulation
+* Collision Detection
+* Real-Time Rendering
+* Looping dan Conditional Statement
+* GitHub Collaborative Development
 
----
+## Prasyarat Sistem
 
-## Menyimpan Perubahan
+Untuk mengompilasi dan menjalankan program, pastikan perangkat telah memiliki:
 
-```bash
-git add .
-git commit -m "Menyelesaikan bagian X"
-```
+* GCC Compiler (C++11 atau lebih baru)
+* Visual Studio Code (Direkomendasikan)
+* Git dan GitHub
+* Terminal yang mendukung ANSI Escape Sequence
+* Sistem Operasi Windows, Linux, atau macOS
 
-Contoh:
+## Langkah Kompilasi dan Menjalankan Program
 
-```bash
-git commit -m "Menambahkan menu inventory"
-git commit -m "Memperbaiki validasi input"
-git commit -m "Menyelesaikan tugas 2"
-```
-
----
-
-## Push ke Repository Fork
-
-```bash
-git push origin dev-nama
-```
-
-Contoh:
-
-```bash
-git push origin dev-chandra
-```
-
----
-
-## Membuat Pull Request
-
-Setelah pekerjaan selesai:
-
-1. Buka repository fork milik kalian di GitHub.
-2. Klik **Compare & Pull Request**.
-3. Pastikan target repository adalah repository utama kelompok.
-4. Berikan judul dan deskripsi yang jelas.
-5. Submit Pull Request.
-
-Pull Request akan direview sebelum digabungkan ke branch utama.
-
----
-
-## Aturan Kelompok
-
-✅ Selalu sinkronkan repository sebelum mulai bekerja.
-
-✅ Gunakan branch masing-masing.
-
-✅ Commit dengan pesan yang jelas.
-
-✅ Buat Pull Request setelah pekerjaan selesai.
-
-❌ Jangan commit langsung ke branch `main`.
-
-❌ Jangan menggunakan:
+1. Buka terminal pada direktori proyek.
+2. Kompilasi seluruh berkas sumber menggunakan GCC:
 
 ```bash
-git push --force
+g++ main.cpp -o apex_projectile
 ```
 
-❌ Jangan mengubah bagian anggota lain tanpa koordinasi.
-
-❌ Jangan menghapus file project tanpa izin.
-
----
-
-## Alur Kerja Singkat
+3. Jalankan program:
 
 ```bash
-git clone <repository-fork>
-
-git checkout -b dev-nama
-
-# coding
-
-git add .
-
-git commit -m "Perubahan"
-
-git push origin dev-nama
+./apex_projectile
 ```
 
-Kemudian buat Pull Request ke repository utama.
+## Cara Bermain
 
----
+1. Pilih menu **Start Game** pada menu utama.
+2. Perhatikan posisi target dan obstacle yang muncul pada area permainan.
+3. Masukkan sudut tembakan yang diinginkan.
+4. Masukkan kekuatan peluncuran proyektil.
+5. Amati lintasan proyektil dan interaksi fisika yang terjadi.
+6. Hancurkan target sebelum seluruh kesempatan tembakan habis.
+7. Kumpulkan kemenangan dengan strategi sudut dan kekuatan yang tepat.
 
-## Jika Terjadi Error
+## Tim Pengembang
 
-Screenshot pesan error dan kirim ke grup agar dapat dibantu bersama.
+Proyek ini dikembangkan sebagai Project Akhir Mata Kuliah Algoritma dan Pemrograman menggunakan bahasa C++ dengan metode pengembangan kolaboratif berbasis GitHub.
