@@ -1,3 +1,4 @@
+// game logic
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
@@ -6,6 +7,14 @@
 #include <limits>
 #include <string>
 #include <thread>
+#include <conio.h>
+
+#define RESET   "\033[0m"
+#define RED     "\033[31m"
+#define ORANGE  "\033[38;5;208m"
+#define YELLOW  "\033[33m"
+#define WHITE   "\033[37m"
+#define GRAY    "\033[90m"
 
 using namespace std;
 
@@ -27,6 +36,7 @@ struct GameConfig {
   const string cyan = "\033[36m";
   const string gray = "\033[90m";
   const string magenta = "\033[35m";
+  const string brown = "\033[38;5;94m";
 };
 
 struct Debris {
@@ -94,7 +104,7 @@ void resetScreen(
 void drawToScreen(
     char screen[GameConfig::height_chars][GameConfig::width_chars],
     float worldX, float worldY, char symbol, const GameContext &ctx) {
-  int screenX = (int)round(worldX / ctx.config.scale);
+    int screenX = (int)round(worldX / ctx.config.scale);
   int screenY = (int)round(worldY / ctx.config.scale);
 
   if (screenY >= GameConfig::height_chars - 1) {
@@ -111,11 +121,24 @@ void printWithPadding(string text, int padding) {
   cout << string(padding, ' ') << text;
 }
 
+// Menggambar ketapel statis (bentuk Y) di pojok kiri-bawah area permainan,
+// tepat di sekitar titik awal bola diluncurkan.
+void drawSlingshot(GameContext &ctx) {
+  int baseRow = GameConfig::height_chars - 2; // baris lantai (18)
+
+  ctx.screen[baseRow - 4][0] = '\\';
+  ctx.screen[baseRow - 4][4] = '/';
+  ctx.screen[baseRow - 3][1] = '\\';
+  ctx.screen[baseRow - 3][3] = '/';
+  ctx.screen[baseRow - 2][2] = 'Y';
+  ctx.screen[baseRow - 1][2] = '|'; // titik ini juga posisi awal bola
+  ctx.screen[baseRow][2]     = '|';
+}
+
 void renderGameInterface(int attempt, const GameContext &ctx) {
   cout << "\033[1;1H\n\n";
   printWithPadding("+" + string(GameConfig::width_chars, '-') + "+\n",
                    ctx.config.padding_left);
-
   for (int y = 0; y < GameConfig::height_chars - 1; y++) {
     cout << string(ctx.config.padding_left, ' ') << "|";
     for (int x = 0; x < GameConfig::width_chars; x++) {
@@ -130,6 +153,8 @@ void renderGameInterface(int attempt, const GameContext &ctx) {
         cout << ctx.config.yellow << ch << ctx.config.reset;
       else if (ch == 'x' || ch == '+')
         cout << ctx.config.gray << ch << ctx.config.reset;
+      else if (ch == '\\' || ch == '/' || ch == 'Y' || ch == '|')
+        cout << ctx.config.bold << ctx.config.brown << ch << ctx.config.reset;
       else
         cout << ch;
     }
@@ -359,6 +384,7 @@ void updatePhysics(Ball &ball, GameContext &ctx) {
 
 void updateScreenBuffer(Ball &ball, GameContext &ctx) {
   resetScreen(ctx.screen);
+  drawSlingshot(ctx);
 
   drawToScreen(ctx.screen, ctx.targetX, ctx.targetY,
                (!ctx.targetHit) ? '@' : '*', ctx);
@@ -479,26 +505,341 @@ void displayGameResult(const GameContext &ctx) {
 }
 
 
-// int main() {
-//   srand(time(0));
 
-//   GameContext ctx;
-//   ctx.tower = new Obstacle[GameConfig::max_obstacles];
+//Petunjuk
+// WARNA ANSI 
+#define RESET    "\033[0m"
+#define RED      "\033[31m"
+#define GREEN    "\033[32m"
+#define YELLOW   "\033[33m"
+#define BLUE     "\033[34m"
+#define CYAN     "\033[36m"
+#define BOLD     "\033[1m"
+#define GOLD     "\033[38;5;220m"
+#define PURPLE   "\033[38;5;129m"
+#define MARGIN  30
 
-//   generateLevel(ctx);
-//   ctx.targetFallen = (ctx.targetY < ctx.lantaiMeter);
+void printCentered(string text) {
+    cout << string(MARGIN, ' ') << text << endl;
+}
 
-//   cout << "\033[2J\033[?25l";
+// Garis pembatas yang sudah terpusat
+void printDivider() {
+    cout << string(MARGIN, ' ') << "================================================================" << endl;
+}
 
-//   for (int attempt = 1; attempt <= ctx.config.max_attempts; attempt++) {
-//     ctx.gameWon = runRoundSimulation(attempt, ctx);
-//     if (ctx.gameWon)
-//       break;
-//   }
+void howToPlay() {
+    system("cls"); 
 
-//   displayGameResult(ctx);
+    // BAGIAN 1: OBJECTIVE
+    cout << BOLD << GOLD;
+    cout << string(MARGIN, ' ') << "================================================================" << endl;
+    cout << string(MARGIN, ' ') << "|                     H O W   T O   P L A Y                    |" << endl;
+    cout << string(MARGIN, ' ') << "================================================================" << endl << endl;
 
-//   delete[] ctx.tower;
-//   cout << "\033[?25h";
-//   return 0;
-// }
+    cout << BOLD << BLUE;
+    printCentered("OBJECTIVE");
+    cout << RESET;
+    printDivider();
+    printCentered("Hancurkan seluruh target menggunakan bola yang tersedia.");
+    printCentered("Selesaikan setiap level dengan jumlah tembakan sesedikit");
+    
+    printCentered("Tekan Enter untuk melanjutkan........");
+    cin.get();
+    system("cls");
+
+    // BAGIAN 2: LANGKAH BERMAIN
+    cout << BOLD << GREEN;
+    printCentered("LANGKAH BERMAIN");
+    cout << RESET;
+    printDivider();
+
+    cout << BOLD << YELLOW << string(MARGIN, ' ') << "1. Mulai Permainan" << RESET << endl;
+    printCentered("Pilih menu START pada Main Menu untuk memulai permainan.\n");
+
+    cout << BOLD << YELLOW << string(MARGIN, ' ') << "2. Atur Sudut Peluncuran" << RESET << endl;
+    printCentered("Masukkan sudut (derajat) untuk peluncuran bola.");
+    printCentered("Sudut yang berbeda akan menghasilkan lintasan yang berbeda.\n");
+
+    cout << BOLD << YELLOW << string(MARGIN, ' ') << "3. Atur Kekuatan Tembakan" << RESET << endl;
+    printCentered("Masukkan nilai kecepatan tembakan (m/s) untuk menentukan");
+    printCentered("seberapa jauh bola akan diluncurkan menuju target.\n");
+
+    cout << BOLD << YELLOW << string(MARGIN, ' ') << "4. Luncurkan Bola" << RESET << endl;
+    printCentered("Setelah sudut dan kekuatan ditentukan, bola akan");
+    printCentered("bergerak mengikuti gravitasi.\n");
+    
+    printCentered("Tekan Enter untuk melanjutkan........");
+    cin.get();
+    system("cls");
+
+    // BAGIAN 3: TARGET, BOLA, LEVEL
+    cout << BOLD << RED;
+    printCentered("HANCURKAN TARGET");
+    cout << RESET;
+    printDivider();
+    printCentered("Bidik seluruh target dengan tepat untuk menambah skor.\n");
+
+    cout << BOLD << CYAN;
+    printCentered("BOLA TERBATAS");
+    cout << RESET;
+    printDivider();
+    printCentered("Jumlah kesempatan terbatas. Gunakan seefektif mungkin.\n");
+
+    cout << BOLD << PURPLE;
+    printCentered("DYNAMIC LEVEL");
+    cout << RESET;
+    printDivider();
+    printCentered("Setiap level memiliki susunan target yang diacak.");
+    printCentered("Sesuaikan strategi, sudut, dan kekuatan setiap saat.\n");
+    
+    printCentered("Tekan Enter untuk melanjutkan........");
+    cin.get();
+    system("cls");
+
+    // BAGIAN 4: MENANG/KALAH
+    cout << BOLD << GREEN;
+    printCentered("MENANG");
+    cout << RESET;
+    printDivider();
+    printCentered("Hancurkan seluruh target untuk menyelesaikan level.\n");
+
+    cout << BOLD << RED;
+    printCentered("KALAH");
+    cout << RESET;
+    printDivider();
+    printCentered("Permainan berakhir jika bola habis sebelum target hancur.\n");
+
+    printCentered("Tekan ENTER untuk kembali ke Main Menu......");
+    cin.get();
+    cin.ignore(1000, '\n');
+}
+
+
+
+// backgroundstory
+void hapus (){
+    cout << "\033[2J\033[H";
+}
+
+void delay (int MS) {
+    this_thread::sleep_for(chrono::milliseconds(MS));
+}
+
+void ketik (string teks, int kecMS = 10){
+    for (char c : teks){
+        cout << c;
+        cout.flush();
+        delay(kecMS);
+    }
+}
+
+void BGStory (){
+    hapus ();
+
+    ketik ("Tahun 2389. Kehancuran melanda bumi...");
+    delay (1000);
+
+    ketik ("\n\nTeknologi lumpuh.");
+    delay(500);
+    ketik ("\nHarapan hampir sirna.");
+    delay (1500);
+
+    ketik ("\n\nKamu adalah Prof.George,");
+    delay (400);
+    ketik ("\nSatu-satunya yang masih berani melawan.");
+    delay (1500);
+
+    ketik ("\n\nHanya tersisa satu hal...");
+    delay (1500);
+
+    ketik ("\n\nSenjata yang tak pernah kehabisan amunisi");
+    delay (1500);
+
+    ketik ("\n\nIni adalah pertempuran terakhirmu..");
+    delay (1000);
+
+    ketik ("\n\n\"Fisika adalah senjata terkuat.\"");
+    delay (500);
+    ketik ("\n\t-Prof.George\n\n");
+
+    cout << "[Tekan ENTER untuk kembali ke menu...]";
+    cin.get();
+
+}
+
+// menu
+void tampilMenu(int pilihan);
+void startGame();
+void petunjuk();
+void tentang();
+
+void hideKursor() { cout << "\033[?25l" << flush; }
+void showKursor() { cout << "\033[?25h" << flush; }
+void goHome()      { cout << "\033[H\033[J"; }
+void clearScreen()  { cout << "\033[2J\033[H"; }
+
+void tampilMenu(int pilihan)
+{
+    hideKursor();
+    goHome();
+
+    string menu[4] = {
+        "START",
+        "HOW TO PLAY",
+        "BACKGROUND STORY",
+        "EXIT"
+    };
+
+    cout << "\to====================================================================================================o\n" << endl;
+    cout << RED;
+    cout << "\t           _    ____  _______  __    ____  ____   ___      _ _____ ____ _____ ___ _     _____\n";
+    cout << "\t          / \\  |  _ \\| ____\\ \\/ /   |  _ \\|  _ \\ / _ \\    | | ____/ ___|_   _|_ _| |   | ____|\n";
+    cout << "\t         / _ \\ | |_) |  _|  \\  /    | |_) | |_) | | | |   | |  _|| |     | |  | || |   |  _|\n";
+    cout << "\t        / ___ \\|  __/| |___ /  \\    |  __/|  _ <| |_| |___| | |__| |___  | |  | || |___| |__\n";
+    cout << "\t       /_/   \\_\\_|   |_____/_/\\_\\   |_|   |_| \\_\\\\___/|_____|_____\\\\____| |_| |___|_____|____|\n" << endl;
+    cout << RESET;
+    cout << "\to====================================================================================================o\n";
+    cout << "\n\n";
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (i == pilihan)
+            cout << ORANGE;
+        else
+            cout << WHITE;
+
+        cout << "\t\t\t\t\t\t+----------------------+\n";
+
+        string isi = (i == pilihan) ? "> " + menu[i] : "  " + menu[i];
+
+        cout << "\t\t\t\t\t\t| " << isi;
+
+        int sisa = 20 - (int)isi.length();
+        for (int j = 0; j < sisa; j++)
+            cout << " ";
+
+        cout << " |\n";
+        cout << "\t\t\t\t\t\t+----------------------+\n\n";
+    }
+
+    cout << GRAY;
+    cout << "\n";
+    cout << "\t\t\t\t\tGunakan PANAH ATAS/BAWAH untuk memilih\n";
+    cout << "\t\t\t\t\t     Tekan ENTER untuk melanjutkan\n";
+    cout << RESET;
+
+    showKursor();
+}
+
+void startGame()
+{
+    clearScreen();
+
+    cout << "================ START GAME ================\n\n";
+    cout << "Game dimulai...\n\n";
+
+    srand(time(0));
+
+    GameContext ctx;
+    ctx.tower = new Obstacle[GameConfig::max_obstacles];
+
+    generateLevel(ctx);
+    ctx.targetFallen = (ctx.targetY < ctx.lantaiMeter);
+
+    cout << "\033[2J\033[?25l";
+
+    for (int attempt = 1; attempt <= ctx.config.max_attempts; attempt++) {
+        ctx.gameWon = runRoundSimulation(attempt, ctx);
+        if (ctx.gameWon)
+        break;
+    }
+
+    displayGameResult(ctx);
+
+    delete[] ctx.tower;
+    cout << "\033[?25h";
+
+    getch();
+}
+
+void petunjuk()
+{
+    clearScreen();
+    cout << "================ HOW TO PLAY ================\n\n";
+    howToPlay();
+    getch();
+}
+
+void tentang()
+{
+    clearScreen();
+
+    cout << "============= BACKGROUND STORY =============\n\n";
+    BGStory();
+    getch();
+}
+
+
+
+int main() {
+     int pilihan = 0;
+    char tombol;
+
+    cout << "\033[?1049h"; // hilangkan scrollback
+    clearScreen();
+
+    while (true)
+    {
+        tampilMenu(pilihan);
+
+        tombol = getch();
+
+        if (tombol == -32 || tombol == 0)
+        {
+            tombol = getch();
+
+            if (tombol == 72) // Panah Atas
+            {
+                pilihan--;
+                if (pilihan < 0)
+                    pilihan = 3;
+            }
+            else if (tombol == 80) // Panah Bawah
+            {
+                pilihan++;
+                if (pilihan > 3)
+                    pilihan = 0;
+            }
+        }
+        else if (tombol == 13) // Enter
+        {
+            switch (pilihan)
+            {
+                case 0:
+                    startGame();
+                    break;
+
+                case 1:
+                    petunjuk();
+                    break;
+
+                case 2:
+                    tentang();
+                    break;
+
+                case 3:
+                    clearScreen();
+                    cout << YELLOW;
+                    cout << "\n\n";
+                    cout << "             Terima kasih telah memainkan APEX PROJECTILE!\n\n";
+                    cout << RESET;
+
+                    cout << "\033[?1049l"; // keluar alternate screen buffer
+                    return 0;
+            }
+        }
+    }
+
+    cout << "\033[?1049l";
+}
